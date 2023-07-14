@@ -1,64 +1,38 @@
 //controllers to store all funcs inside methods
 const Task=require(`../models/tasks`)
+const asynctc=require('../midware/trycatch')//async try catcher
+const {customErrorCreator}= require(`../errors/customerr`)
 
-const getAllTasks=async (req,res)=>{
-    try
-    {const tasks= await Task.find()
-    res.status(200).json({tasks})}
-    catch(err){
-        res.status(500).json(err)
-    }
-}
-const createTask=async (req,res)=>{
-    try{
+const getAllTasks=asynctc(async (req,res)=>{
+    const tasks= await Task.find()
+    res.status(200).json({tasks})})
+
+const createTask=asynctc(async (req,res)=>{
     const task=await Task.create(req.body)
     res.status(201).json({task})
-    }
-    catch(err){
-        const {message}=err
-        res.status(500).json(message)
-    }
-}
+    })
 
-const getTask=async (req,res)=>{
-    try
-    {
+const getTask=asynctc(async (req,res)=>{
     const id=req.params.id
-    const task = await Task.findOne({_id:id})
+    const task = await Task.findById(id)
     if(task){
         return res.status(200).json({success:true,data:task})
     }
-    return res.status(404).json({success:false,reason:`No such file`})}
-    catch(err){
-        res.status(500).json(err)
-    }
+    return next(customErrorCreator(`No such task at this id:${id} `,404))})
 
-}
-const updateTask=async (req,res)=>{
+const updateTask=asynctc(async (req,res)=>{
     id=req.params.id
-    try{
-    const task = await Task.findOneAndUpdate({_id:id},req.body,{new:true,runValidators:true}) 
+    const task = await Task.findByIdAndUpdate(id,req.body,{new:true,runValidators:true}) 
     if(task){
         return res.status(200).json({success:true,data:task})
     }
-    return res.status(404).json({success:false,reason:`No such file`})
-    }
-    catch(err){
-        res.status(500).json(err)
-    }
-}
-const deleteTask=async (req,res)=>{
+    next(customErrorCreator(`No such task at this id:${id} `,404))})
+const deleteTask=asynctc(async (req,res)=>{
     const id=req.params.id
-        try{
-        const task =await Task.findOneAndDelete({_id:id})
+        const task =await Task.findByIdAndDelete(id)
         if(task){
         return res.status(200).json({success:true})}
         else{
-            return res.status(404).json({success:false,msg:`No task with id:${id}`})
-        }
-        }
-        catch(err){
-    return res.status(404).json({error:err.name,msg:err.message})
-        }
-}
+            next(customErrorCreator(`No such task at this id:${id} `,404))}})
+
 module.exports={getAllTasks,createTask,getTask,updateTask,deleteTask}
