@@ -1,6 +1,6 @@
 const express= require('express');// initialization and depackaging express module 
 const app= express();
-const port = 3000
+const port = process.env.PORT||3000
 const routes=require('./router/tasks')
 const connectDB=require('./database/connect.js')
 require('dotenv').config()
@@ -17,7 +17,7 @@ app.use(express.json())//to parse json data
 
 app.use('/api/v1/tasks',routes)
 app.use(notFound)
-app.use(errhandler)
+app.use(errhandler) 
 const spin= async ()=>{
     try {
         await connectDB(process.env.mongostr)
