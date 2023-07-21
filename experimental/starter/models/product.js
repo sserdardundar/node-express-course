@@ -1,4 +1,3 @@
-const { max } = require('lodash')
 const mongoose = require('mongoose')
 //model and schema file
 const productSchema= new mongoose.Schema({
@@ -24,7 +23,7 @@ const productSchema= new mongoose.Schema({
         default:4.5,
         min: 0,   // Minimum allowed value
         max: 5, // Maximum allowed value
-        required: true,
+        required:[true,'Min:0 Max:5 rating is accepted']
         
     }
     ,createdAt:{
