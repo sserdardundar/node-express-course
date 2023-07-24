@@ -2,6 +2,10 @@ require('dotenv').config();
 require('express-async-errors');
 const express = require('express');
 const app = express();
+const helmet = require('helmet')
+const cors = require('cors')
+const xss= require('xss-clean')
+const rateLimit= require('express-rate-limit')
 
 //connectDB
 const connectDB=require('./db/connect')
@@ -16,7 +20,13 @@ const authUser= require('./middleware/authentication')
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
+app.set('trust proxy',1)
+app.use(rateLimit({windowMs: 15 * 60 * 1000, // 15 minutes
+max: 100}))
 app.use(express.json());
+app.use(helmet())
+app.use(xss())
+app.use(cors())
 // extra packages
 
 // routes
